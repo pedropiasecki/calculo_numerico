@@ -1,1 +1,1 @@
-Método: Gauss Seidel, x = [nan nan nan], iterações: 915 tempo: 0.014111757278442383
+Método: Gauss Seidel, x = [ 4.4296654  -6.7530893  -3.83531522], iterações: 4 tempo: 0.00018095970153808594

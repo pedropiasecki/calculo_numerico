@@ -49,6 +49,9 @@ x0: 1.5
         self.limpar_tela()
         self.tela()
         self.tela_de_escolhas()
+        self.Ab_carregado = False
+        self.A_carregado = False
+        self.b_carregado = False
 
     def realiza_metodo(self, metodo='Bisseccao'):
         params = funcoes.ler_parametros("./arquivos/funcao_arquivo.txt")
@@ -208,6 +211,14 @@ x0: 1.5
         arquivo_saida = "./arquivos/resultado_sistema.txt"
         open(arquivo_saida, "w").close()
 
+        if (self.b_carregado == False and self.Ab_carregado == False):
+            if (self.A_carregado == True):
+                messagebox.showwarning("Aviso", "Matriz b não foi carregada")
+                return
+            else:
+                messagebox.showwarning("Aviso", "Matriz não foi carregada")
+                return
+            
         try:
             inicio = time.time()
             if metodo == 'Gauss':
