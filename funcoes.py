@@ -49,13 +49,16 @@ def salvar_tabela(nome_arquivo, metodo, cabecalho, linhas):
                 f.write(f"{titulo} = {valor}\n")
         f.write("---------------\n")
 
+# escrever antes do relatório
 def salvar_tabela_antes(nome_arquivo, metodo, it, raiz):
         with open(nome_arquivo, "a", encoding="utf-8") as f:
             f.write(f'Método: {metodo}, k = {it}, raiz = {raiz}')
 
+# caso não convergir
 def salvar_tabela_caso(nome_arquivo, metodo, it, raiz):
         with open(nome_arquivo, "a", encoding="utf-8") as f:
             f.write(f'Método: {metodo}, k = {it}, raiz = {raiz}, Não convergiu no limite de iterações')
+
 
 def Bisseccao(func, a, b, delta, n, arquivo_saida):
     k = 0

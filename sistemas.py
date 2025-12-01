@@ -4,7 +4,7 @@ import math
 import copy
 import time
 
-# ler arquivo
+# ler arquivo Ax = b
 def ler_sistema(nome_arquivo):
     with open(nome_arquivo, "r") as f:
         linhas = f.readlines()
@@ -16,6 +16,7 @@ def ler_sistema(nome_arquivo):
 
     return A, b
 
+# ler arquivo Ax
 def ler_A(nome_arquivo):
     with open(nome_arquivo, "r") as f:
         linhas = [linha.strip() for linha in f if linha.strip()]
@@ -23,7 +24,7 @@ def ler_A(nome_arquivo):
     A = [list(map(float, linha.split())) for linha in linhas]
     return A
 
-
+# ler arquivo b
 def ler_b(nome_arquivo):
     with open(nome_arquivo, "r") as f:
         linha = f.readline().strip()
@@ -251,6 +252,13 @@ def cholesky(A, b):
     n = len(A)
     L = np.zeros((n, n))
 
+    #verifica simetrica
+    n = len(A)
+    for i in range(n):
+        for j in range(n):
+            if A[i][j] != A[j][i]:
+                raise ValueError("Matriz não é simétrica")
+
     ## criar L
     # percorrer diagonal inferior
     for i in range(n):
@@ -290,11 +298,96 @@ def cholesky(A, b):
     return x
 
 
-def gaussJacobi(A, b):
-    pass
+def gaussJacobi(A, b, n, delta, parada):
+    tam = len(b)
+    x = np.zeros(tam) # chute inicial 
 
-def gaussSeidel(A, b):
-    pass
+    # loop de iterações
+    for k in range(n): 
+        x_old = x.copy() # valor de x x^(k-1)
+
+        for i in range(tam):
+            # soma elementos da linha menos o pivo
+            soma = 0
+            for j in range(tam):
+                if j != i:
+                    soma += A[i][j] * x_old[j]
+
+            # formula
+            x[i] = (b[i] - soma) / A[i][i]
+
+        if parada == 'Erro Absoluto':
+            erro = 0
+            for i in range(tam):
+                diferenca = abs(x[i] - x_old[i])
+                if diferenca > erro:
+                    erro = diferenca
+
+            if erro < delta:
+                return x, k+1
+
+        elif parada == 'Erro Relativo':
+            erro = 0
+            for i in range(tam):
+                if x[i] != 0:
+                    diferenca = abs((x[i] - x_old[i]) / x[i])
+                    if diferenca > erro:
+                        erro = diferenca
+
+            if erro < delta:
+                return x, k+1
+
+    raise ValueError("Gauss-Jacobi não convergiu dentro do número máximo de iterações.")
+
+
+def gaussSeidel(A, b, n, delta, parada):
+    A = copy.deepcopy(A)
+    b = copy.deepcopy(b)
+
+    tam = len(b)
+    x = np.zeros(tam) # chute inicial
+
+    # iterações
+    for k in range(n):
+        x_old = x.copy() # guardar valores
+
+        for i in range(tam):
+            # somar valores atualizados antes da diagonal
+            soma1 = 0
+            for j in range(i):
+                soma1 += A[i][j] * x[j]
+
+            # somar valores antigos depois da diagonal
+            soma2 = 0
+            for j in range(i + 1, tam):
+                soma2 += A[i][j] * x_old[j]
+
+            # formula
+            x[i] = (b[i] - soma1 - soma2) / A[i][i]
+
+        # Erro Absoluto
+        if parada == "Erro Absoluto":
+            erro = 0
+            for i in range(tam):
+                diferenca = abs(x[i] - x_old[i])
+                if diferenca > erro:
+                    erro = diferenca
+            if erro < delta:
+                return x, k+1
+
+        # Erro Relativo
+        elif parada == "Erro Relativo":
+            erro = 0
+            for i in range(tam):
+                if x[i] != 0:
+                    diferenca_rel = abs((x[i] - x_old[i]) / x[i])
+                    if diferenca_rel > erro:
+                        erro = diferenca_rel
+            if erro < delta:
+                return x, k+1
+
+    raise ValueError("Gauss-Seidel não convergiu dentro do número máximo de iterações.")
+
 
 if __name__ == "__main__":
     arquivo_saida = './arquivos/resultado_sistema'
@@ -316,17 +409,17 @@ if __name__ == "__main__":
     # x = gauss_pivoteamento_completo(copy.deepcopy(A), copy.deepcopy(b))
     # print("Gauss Pivoteamento Completo: ", x)
 
-    inicio = time.time()
-    x = decomposicao_LU(copy.deepcopy(A), copy.deepcopy(b))
-    print("Decomposição LU: ", x)
-    fim = time.time()
-    print(fim - inicio)
+    # x = decomposicao_LU(copy.deepcopy(A), copy.deepcopy(b))
+    # print("Decomposição LU: ", x)
 
-    # x = cholesky(copy.deepcopy(A), copy.deepcopy(b))
-    # print("Cholesky: ", x)
+    x = cholesky(copy.deepcopy(A), copy.deepcopy(b))
+    print("Cholesky: ", x)
 
-    # x = gaussJacobi(copy.deepcopy(A), copy.deepcopy(b))
-    # print("Gauss Jacobi: ", x)
+    n = 50
+    delta = 0.05
 
-    # x = gaussSeidel(copy.deepcopy(A), copy.deepcopy(b))
-    # print("Gauss Seidel: ", x)
+    x, k = gaussJacobi(copy.deepcopy(A), copy.deepcopy(b), n, delta, "Erro Absoluto")
+    print("Gauss Jacobi: ", x, k)
+
+    x, k = gaussSeidel(copy.deepcopy(A), copy.deepcopy(b), n, delta, "Erro Relativo")
+    print("Gauss Seidel: ", x, k)

@@ -238,7 +238,7 @@ x0: 1.5
                     return
                 
                 tipo_erro = self.combo_erro.get()
-                x = sistemas.gaussJacobi(self.A, self.b, n, delta, tipo_erro)
+                x, k= sistemas.gaussJacobi(self.A, self.b, n, delta, tipo_erro)
 
             elif metodo == 'Gauss Seidel':
                 try:
@@ -253,12 +253,15 @@ x0: 1.5
                     return
                 
                 tipo_erro = self.combo_erro.get()
-                x = sistemas.gaussSeidel(self.A, self.b, n, delta, tipo_erro)
+                x, k = sistemas.gaussSeidel(self.A, self.b, n, delta, tipo_erro)
 
             fim = time.time()
             tempo = fim - inicio
-
-            self.resultado_sistemas(arquivo_saida, x, metodo, tempo)
+            
+            if (metodo != 'Gauss Seidel' and metodo != 'Gauss Jacobi'): 
+                self.resultado_sistemas(arquivo_saida, x, metodo, tempo)
+            else:
+                self.resultado_sistemas_iterativos(arquivo_saida, x, metodo, tempo, k, delta)
 
         except Exception as e:
             messagebox.showwarning("Erro", f"erro ao executar {e}")
@@ -275,6 +278,17 @@ x0: 1.5
 
         self.lbl_sistemas.config(text=conteudo)
 
+    def resultado_sistemas_iterativos(self, arquivo_saida, x, metodo, tempo, k, delta):
+        # salvar resultado
+        with open(arquivo_saida, "a", encoding="utf-8") as f:
+            f.write(f'Método: {metodo}, x = {x}, iterações: {k} tempo: {tempo}')
+
+        # mostrar na tela
+        with open(arquivo_saida, "r", encoding="utf-8") as f:
+            conteudo = f.readline()
+
+        self.lbl_sistemas.config(text=conteudo)
+        
 
 ### interface
 class Application(Funcs):
@@ -545,12 +559,14 @@ class Application(Funcs):
 
         self.entry_numero_iteracoes = Entry(self.frame_3, bd=2)
         self.entry_numero_iteracoes.place(relx=0.20, rely=0.45, relwidth=0.1)
+        self.entry_numero_iteracoes.insert(0, 50)
 
         self.lb_delta = Label(self.frame_3, text = "delta:", bg='lightgrey', fg='#107db2')
         self.lb_delta.place(relx=0.35, rely=0.45)
 
         self.entry_delta = Entry(self.frame_3, bd=2)
-        self.entry_delta.place(relx=0.40, rely=0.45, relwidth=0.1)
+        self.entry_delta.place(relx=0.40, rely=0.45, relwidth=0.1, )
+        self.entry_delta.insert(0, 0.05)
 
         self.lbl_sistemas = Label(self.frame_4, bg="#ffffff", fg="#000000",
                             font=('Verdana', 8))
