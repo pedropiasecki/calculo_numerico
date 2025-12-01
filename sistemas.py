@@ -302,6 +302,18 @@ def gaussJacobi(A, b, n, delta, parada):
     tam = len(b)
     x = np.zeros(tam) # chute inicial 
 
+    # critério de convergencia
+    for i in range(tam):
+        diag = abs(A[i][i])
+
+        soma = 0
+        for j in range(tam):
+            if j != i:
+                soma += abs(A[i][j])
+
+        if diag <= soma:
+            raise ValueError(f"Critério de convergência não satisfeito.")
+
     # loop de iterações
     for k in range(n): 
         x_old = x.copy() # valor de x x^(k-1)
@@ -343,9 +355,25 @@ def gaussJacobi(A, b, n, delta, parada):
 def gaussSeidel(A, b, n, delta, parada):
     A = copy.deepcopy(A)
     b = copy.deepcopy(b)
+    sassenfeld = []
 
     tam = len(b)
     x = np.zeros(tam) # chute inicial
+
+    # criterio de convergência sassenfeld
+    for i in range(tam):
+        soma = 0
+        for j in range(tam):
+            if j < i:
+                soma += abs(A[i][j]) * sassenfeld[j]
+            elif j > i:
+                soma += abs(A[i][j])
+
+        fator = soma / abs(A[i][i])
+        sassenfeld.append(fator)
+
+    if max(sassenfeld) >= 1:
+        raise ValueError("Critério de Sassenfeld não satisfeito.")
 
     # iterações
     for k in range(n):
