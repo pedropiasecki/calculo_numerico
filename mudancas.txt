@@ -1,20 +1,11 @@
-O programa deve permitir carregar um sistema linear 
-Ax=b de qualquer ordem (n variável).
+# exemplo de iserção
+funcao: exp(-x**2) - cos(x)
+a: 1
+b: 2
+delta: 1e-6
+n: 100
+phi: cos(x)-exp(-x**2)+x
+dfuncao: sin(x)-2*x*exp(-x**2)
+x0: 1.5
 
-Deve haver opção para carregar apenas os coeficientes 
-da matriz A (arquivo contendo A) e o vetor b separadamente, 
-ou carregar um arquivo que contenha A e b juntos (por exemplo, formato estendido).
-
-O usuário deve poder escolher qual método será usado para resolver o sistema.
-
-Para métodos iterativos: permitir definir tolerância, 
-número máximo de iterações e condição de parada; exibir 
-número de iterações, solução aproximada e tempo de execução.
-
-Para métodos diretos: exibir solução e tempo de execução.
-
-Tratar e informar adequadamente casos especiais: 
-matrizes singulares, necessidade de pivoteamento, 
-Cholesky não aplicável (não positiva definida), divergência de métodos iterativos, etc.
-
-Interface clara: mostrar passo a passo (opcionalmente), resultados finais, etc.
+*Problema do MIL era chamar dfuncao no lugar de phi

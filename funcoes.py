@@ -91,8 +91,8 @@ def Mil(func, phi, x0, delta, n, arquivo_saida):
                 f.write(f'Método MIL: Overflow na iteração {k}, x0 = {x0}\n')
             break
         
-        tabelas.append([k, x0, x1, func(x1)])
-        if abs(func(x1)) < delta or abs(x1 - x0) < delta:
+        tabelas.append([k, x0, x1, f_x1])
+        if abs(f_x1) < delta or abs(x1 - x0) < delta:
             salvar_tabela_antes(arquivo_saida, "Método Iterativo Linear (MIL)", k, x1)
             break
         x0 = x1

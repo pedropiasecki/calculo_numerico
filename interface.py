@@ -83,7 +83,7 @@ x0: 1.5
                     with open(arquivo_saida, "a", encoding="utf-8") as f:
                         f.write(f'Método: MIL: Phi não informado')
                 else:
-                    funcoes.Mil(funcao, dfuncao, x0, delta, n, arquivo_saida)
+                    funcoes.Mil(funcao, phi, x0, delta, n, arquivo_saida)
             if (metodo == 'NewtonRaphson'):
                 if dfuncao is None:
                     with open(arquivo_saida, "a", encoding="utf-8") as f:
@@ -138,40 +138,23 @@ x0: 1.5
         with open("./arquivos/sistema_arquivo.txt", "r", encoding="utf-8") as f:
             conteudo = f.read()
 
-        if not conteudo:
-            messagebox.showwarning("Aviso", "Arquivo Ab está vazio.")
-            return
-
-
         self.txt_mostra_sistemas.config(state="normal")
 
         self.txt_mostra_sistemas.delete("1.0", END)
-        self.txt_mostra_sistemas.insert("1.0", "Sistema completo:\n")
         self.txt_mostra_sistemas.insert(END, conteudo)
 
-        self.txt_mostra_sistemas.config(state="disabled")
-
-        self.A, self.b = sistemas.ler_sistema("./arquivos/sistema_arquivo.txt")
-
         self.Ab_carregado = True
+        self.A_carregado = False
+        self.b_carregado = False
 
     def carrega_arquivo_A(self):
         with open("./arquivos/ler_A.txt", "r", encoding="utf-8") as f:
             conteudo = f.read()
 
-        if not conteudo:
-            messagebox.showwarning("Aviso", "Arquivo A está vazio.")
-            return
-
         self.txt_mostra_sistemas.config(state="normal")
 
         self.txt_mostra_sistemas.delete("1.0", END)
-        self.txt_mostra_sistemas.insert("1.0", "Matriz A:\n")
-        self.txt_mostra_sistemas.insert(END, conteudo + "\n")
-
-        self.txt_mostra_sistemas.config(state="disabled")
-
-        self.A = sistemas.ler_A("./arquivos/ler_A.txt")
+        self.txt_mostra_sistemas.insert(END, conteudo)
 
         self.Ab_carregado = False
         self.A_carregado = True
@@ -181,44 +164,69 @@ x0: 1.5
         with open("./arquivos/ler_b.txt", "r", encoding="utf-8") as f:
             conteudo = f.read().strip()
 
-        if not conteudo:
-            messagebox.showwarning("Aviso", "Arquivo b está vazio.")
-            return
-
-        if self.Ab_carregado:
-            messagebox.showwarning("Aviso", "Carregue a matriz A antes de carregar o vetor b.")
-            return
-
-        if not self.A_carregado:
-            messagebox.showwarning("Aviso", "Carregue a matriz A antes de carregar o vetor b.")
-            return
-
-        if self.b_carregado:
-            messagebox.showinfo("Aviso", "O vetor b já foi carregado!")
-            return
-
         self.txt_mostra_sistemas.config(state="normal")
-        self.txt_mostra_sistemas.insert(END, "\nVetor b:\n")
-        self.txt_mostra_sistemas.insert(END, conteudo + "\n")
-        self.txt_mostra_sistemas.config(state="disabled")
-
-        self.b = sistemas.ler_b("./arquivos/ler_b.txt")
+        self.txt_mostra_sistemas.delete("1.0", END)
+        self.txt_mostra_sistemas.insert(END, conteudo)
 
         self.b_carregado = True
+        self.A_carregado = False
+        self.Ab_carregado = False
+
+
+    def salvar_arquivo_sistemas(self):
+        if (self.Ab_carregado):
+            conteudo = self.txt_mostra_sistemas.get("1.0", END)
+            with open("./arquivos/sistema_arquivo.txt", "w", encoding="utf-8") as f:
+                f.write(conteudo)
+            self.A, self.b = sistemas.ler_sistema("./arquivos/sistema_arquivo.txt")
+
+        elif (self.A_carregado):
+            conteudo = self.txt_mostra_sistemas.get("1.0", END)
+            with open("./arquivos/ler_A.txt", "w", encoding="utf-8") as f:
+                f.write(conteudo)
+            self.A = sistemas.ler_A("./arquivos/ler_A.txt")
+
+        elif (self.b_carregado):
+            conteudo = self.txt_mostra_sistemas.get("1.0", END)
+            with open("./arquivos/ler_b.txt", "w", encoding="utf-8") as f:
+                f.write(conteudo)
+            self.b = sistemas.ler_b("./arquivos/ler_b.txt")
 
     
     def realiza_metodo_sistemas(self, metodo):
         arquivo_saida = "./arquivos/resultado_sistema.txt"
         open(arquivo_saida, "w").close()
+            
+        if (self.A_carregado == True or self.b_carregado == True):
+            with open("./arquivos/ler_A.txt", "r", encoding="utf-8") as f:
+                conteudo = f.read().strip()
 
-        if (self.b_carregado == False and self.Ab_carregado == False):
-            if (self.A_carregado == True):
-                messagebox.showwarning("Aviso", "Matriz b não foi carregada")
-                return
-            else:
-                messagebox.showwarning("Aviso", "Matriz não foi carregada")
+            if not conteudo:
+                messagebox.showwarning("Aviso", "Arquivo A está vazio.")
                 return
             
+            with open("./arquivos/ler_b.txt", "r", encoding="utf-8") as f:
+                conteudo = f.read().strip()
+
+            if not conteudo:
+                messagebox.showwarning("Aviso", "Arquivo b está vazio.")
+                return
+            
+            self.A = sistemas.ler_A("./arquivos/ler_A.txt")
+            self.b = sistemas.ler_b("./arquivos/ler_b.txt")
+
+            
+        if (self.Ab_carregado):
+            with open("./arquivos/sistema_arquivo.txt", "r", encoding="utf-8") as f:
+                conteudo = f.read().strip()
+
+            if not conteudo:
+                messagebox.showwarning("Aviso", "Arquivo Ax = b está vazio.")
+                return
+            
+            self.A, self.b = sistemas.ler_sistema("./arquivos/sistema_arquivo.txt")
+
+        
         try:
             inicio = time.time()
             if metodo == 'Gauss':
@@ -503,19 +511,23 @@ class Application(Funcs):
     def widgets_frame_1_2_sistemas(self):
         self.bt_voltar = Button(self.frame_1, text="Voltar", bd=2, bg="#26698b", fg='white', 
                                 font=('verdana', 8, 'bold'), command=self.voltar_menu) 
-        self.bt_voltar.place(relx=0.05, rely=0.05, relwidth=0.1, relheight=0.12)
+        self.bt_voltar.place(relx=0.02, rely=0.05, relwidth=0.1, relheight=0.12)
 
         self.bt_carregar_sistema = Button(self.frame_1, text="Carregar Sistema", bd=2, bg="#26698b", fg='white',
                                 font=('verdana', 8, 'bold'), command=self.carrega_arquivo_sistemas)
-        self.bt_carregar_sistema.place(relx=0.2, rely=0.05, relwidth=0.20, relheight=0.12)
+        self.bt_carregar_sistema.place(relx=0.15, rely=0.05, relwidth=0.20, relheight=0.12)
 
         self.bt_carregar_A = Button(self.frame_1, text="Carregar A", bd=2, bg="#26698b", fg='white',
                                 font=('verdana', 8, 'bold'),command=self.carrega_arquivo_A)
-        self.bt_carregar_A.place(relx=0.45, rely=0.05, relwidth=0.15, relheight=0.12)
+        self.bt_carregar_A.place(relx=0.4, rely=0.05, relwidth=0.15, relheight=0.12)
 
         self.bt_carregar_b = Button(self.frame_1, text="Carregar b", bd=2, bg="#26698b", fg='white',
                                 font=('verdana', 8, 'bold'),command=self.carrega_arquivo_b)
-        self.bt_carregar_b.place(relx=0.65, rely=0.05, relwidth=0.15, relheight=0.12)
+        self.bt_carregar_b.place(relx=0.60, rely=0.05, relwidth=0.15, relheight=0.12)
+
+        self.bt_salvar = Button(self.frame_1, text="Salvar", bd=2, bg="#26698b", fg='white',
+                                font=('verdana', 8, 'bold'),command=self.salvar_arquivo_sistemas)
+        self.bt_salvar.place(relx=0.80, rely=0.05, relwidth=0.15, relheight=0.12)
 
         ## sistema passado em arquivo mostrada na interface
         scroll = Scrollbar(self.frame_2)
