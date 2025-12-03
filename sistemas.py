@@ -298,9 +298,41 @@ def cholesky(A, b):
     return x
 
 
+def troca_linhas(A, b):
+    n = len(b)
+
+    for k in range(n):
+        # encontra o maior pivô possível na coluna k
+        linha_pivo = k
+        maior = abs(A[k][k])
+
+        for i in range(k + 1, n):
+            if abs(A[i][k]) > maior:
+                maior = abs(A[i][k])
+                linha_pivo = i
+
+        if maior == 0:
+            raise ValueError("Não foi possível pivotar: pivô zero encontrado.")
+
+        # se precisa trocar a linha
+        if linha_pivo != k:
+            for aux in range(n):
+                temp  = A[linha_pivo][aux]
+                temp2 = A[k][aux]
+                A[k][aux] = temp
+                A[linha_pivo][aux] = temp2
+
+            tempB = b[linha_pivo]
+            b[linha_pivo] = b[k]
+            b[k] = tempB
+
+    return A, b
+
 def gaussJacobi(A, b, n, delta, parada):
     tam = len(b)
     x = np.zeros(tam) # chute inicial 
+
+    A, b = troca_linhas(A, b)
 
     # critério de convergencia
     for i in range(tam):
@@ -356,6 +388,8 @@ def gaussSeidel(A, b, n, delta, parada):
     A = copy.deepcopy(A)
     b = copy.deepcopy(b)
     sassenfeld = []
+
+    A, b = troca_linhas(A, b)
 
     tam = len(b)
     x = np.zeros(tam) # chute inicial

@@ -121,17 +121,20 @@ x0: 1.5
         scroll.pack(side=RIGHT, fill=Y)
 
         # txt_mostra_funcao
-        txt_mostra_funcao = Text(frame, wrap=WORD, yscrollcommand=scroll.set,
+        txt_mostra_iteracoes = Text(frame, wrap=WORD, yscrollcommand=scroll.set,
                     font=("Arial", 12), bg="white", bd=0)
-        txt_mostra_funcao.pack(fill=BOTH, expand=True)
+        txt_mostra_iteracoes.pack(fill=BOTH, expand=True)
 
-        scroll.config(command=txt_mostra_funcao.yview)
+        scroll.config(command=txt_mostra_iteracoes.yview)
 
+        txt_mostra_iteracoes.config(state="normal")
         # carrega o conteúdo
         with open("./arquivos/iteracoes_funcoes.txt", "r", encoding="utf-8") as f:
             conteudo = f.read()
 
-        txt_mostra_funcao.insert("1.0", conteudo)
+        txt_mostra_iteracoes.insert("1.0", conteudo)
+
+        txt_mostra_iteracoes.config(state="disabled")
 
     ## SISTEMAS
     def carrega_arquivo_sistemas(self):
